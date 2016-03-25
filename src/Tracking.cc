@@ -103,7 +103,7 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
     int nFeatures = fSettings["ORBextractor.nFeatures"];
     float fScaleFactor = fSettings["ORBextractor.scaleFactor"];
     int nLevels = fSettings["ORBextractor.nLevels"];
-    int fastTh = fSettings["ORBextractor.fastTh"];    
+    int fastTh = fSettings["ORBextractor.fastTh"];
     int Score = fSettings["ORBextractor.nScoreType"];
 
     assert(Score==1 || Score==0);
@@ -123,7 +123,7 @@ Tracking::Tracking(ORBVocabulary* pVoc, FramePublisher *pFramePublisher, MapPubl
 
     // ORB extractor for initialization
     // Initialization uses only points from the finest scale level
-    mpIniORBextractor = new ORBextractor(nFeatures*2,1.2,8,Score,fastTh);  
+    mpIniORBextractor = new ORBextractor(nFeatures*2,1.2,8,Score,fastTh);
 
     int nMotion = fSettings["UseMotionModel"];
     mbMotionModel = nMotion;
@@ -167,6 +167,9 @@ void Tracking::Run()
 
 void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
 {
+    ROS_DEBUG_STREAM_COND(mState==NOT_INITIALIZED, "tracking state = NOT_INITIALIZED");
+    ROS_DEBUG_STREAM_COND(mState==INITIALIZING, "tracking state = INITIALIZING");
+    ROS_DEBUG_STREAM_COND(mState==WORKING, "tracking state = WORKING");
 
     cv::Mat im;
 
@@ -295,7 +298,7 @@ void Tracking::GrabImage(const sensor_msgs::ImageConstPtr& msg)
         }
 
         mLastFrame = Frame(mCurrentFrame);
-     }       
+     }
 
     // Update drawer
     mpFramePublisher->Update(this);
@@ -336,6 +339,11 @@ void Tracking::FirstInitialization()
 
         mState = INITIALIZING;
     }
+    else {
+        ROS_DEBUG(
+            "Failed to set reference frame in FirstInitialization() because"
+            "not enough keypoints in current frame\n");
+    }
 }
 
 void Tracking::Initialize()
@@ -345,8 +353,9 @@ void Tracking::Initialize()
     {
         fill(mvIniMatches.begin(),mvIniMatches.end(),-1);
         mState = NOT_INITIALIZED;
+        ROS_DEBUG_STREAM("ref frame reset because not enough keypoints in current frame");
         return;
-    }    
+    }
 
     // Find correspondences
     ORBmatcher matcher(0.9,true);
@@ -356,8 +365,9 @@ void Tracking::Initialize()
     if(nmatches<100)
     {
         mState = NOT_INITIALIZED;
+        ROS_DEBUG("ref frame reset because not enough matches (%i) with current frame", nmatches);
         return;
-    }  
+    }
 
     cv::Mat Rcw; // Current Camera Rotation
     cv::Mat tcw; // Current Camera Translation
@@ -371,7 +381,7 @@ void Tracking::Initialize()
             {
                 mvIniMatches[i]=-1;
                 nmatches--;
-            }           
+            }
         }
 
         CreateInitialMap(Rcw,tcw);
@@ -704,14 +714,14 @@ void Tracking::SearchReferencePointsInFrustum()
         if(pMP->mnLastFrameSeen == mCurrentFrame.mnId)
             continue;
         if(pMP->isBad())
-            continue;        
+            continue;
         // Project (this fills MapPoint variables for matching)
         if(mCurrentFrame.isInFrustum(pMP,0.5))
         {
             pMP->IncreaseVisible();
             nToMatch++;
         }
-    }    
+    }
 
 
     if(nToMatch>0)
@@ -726,7 +736,7 @@ void Tracking::SearchReferencePointsInFrustum()
 }
 
 void Tracking::UpdateReference()
-{    
+{
     // This is for visualization
     mpMap->SetReferenceMapPoints(mvpLocalMapPoints);
 
@@ -897,7 +907,7 @@ bool Tracking::Relocalisation()
                 vpPnPsolvers[i] = pSolver;
                 nCandidates++;
             }
-        }        
+        }
     }
 
     // Alternatively perform some iterations of P4P RANSAC
@@ -989,7 +999,7 @@ bool Tracking::Relocalisation()
 
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if(nGood>=50)
-                {                    
+                {
                     bMatch = true;
                     break;
                 }
