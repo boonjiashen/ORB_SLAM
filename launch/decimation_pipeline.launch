@@ -1,0 +1,44 @@
+<?xml version="1" encoding="utf-8"?>
+<launch>
+
+<!--<node pkg="gscam" type="gscam"-->
+      <!--name="gscam"-->
+      <!--cwd="node">-->
+  <!--<env name="GSCAM_CONFIG"-->
+       <!--value="v4l2src device=/dev/video0 ! video/x-raw-rgb,framerate=30/1 ! ffmpegcolorspace"/>-->
+<!--</node>-->
+
+    <node pkg="video_stream_opencv" type="video_stream" ns="camera" name="image_publisher">
+        <param name="video_stream_provider" type="str" value="/home/jiashen/Downloads/VID_20160405_212505.mp4" />
+        <remap from="camera" to="image_raw" />
+    </node>
+
+    <node pkg="image_view" type="image_view" name="fancy_jam" >
+        <remap from="image" to="camera_out/image_raw" />
+        <param name="autosize" value="true" />
+    </node>
+
+
+<!--ROS_NAMESPACE=camera rosrun video_stream_opencv video_stream-->
+<!--camera:=image_raw _fps:=30 _video_stream_provider:=/home/jiashen/Downloads/VID_20160405_212505.mp4 -->
+
+    <node pkg="image_proc" type="image_proc"
+          ns="camera"
+          name="image_proc">
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          args="standalone image_proc/crop_decimate"
+          name="my_decimator">
+      <param name="decimation_x" type="int" value="3" />
+      <param name="decimation_y" type="int" value="3" />
+
+       <!--remap input topics -->
+      <!--<remap from="camera/image_raw" to="/gscam/image_rect_color"/>-->
+      <!--<remap from="camera/image_info" to="/gscam/camera_info"/>-->
+
+       <!--remap output topics -->
+      <!--<remap from="camera_out/image_raw" to="/camera_crop/image_rect_color"/>-->
+      <!--<remap from="camera_out/image_info" to="/camera_crop/camera_info"/>-->
+    </node>
+</launch>
