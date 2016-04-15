@@ -1,0 +1,77 @@
+%YAML:1.0
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters. Adjust them!
+#--------------------------------------------------------------------------------------------
+
+# Camera calibration and distortion parameters (OpenCV) 
+Camera.fx: 682
+Camera.fy: 681
+Camera.cx: 447
+Camera.cy: 270
+#Camera.fx: 1365.056805
+#Camera.fy: 1363.698338
+#Camera.cx: 894.734799
+#Camera.cy: 541.885620
+
+Camera.k1: -0.047632
+Camera.k2: 0.055181
+Camera.p1: -0.000632
+Camera.p2: -0.006943
+
+#K = [f_x   0 c_x
+       #0 f_y c_y
+       #0   0   1]
+#distortion coefficients= k1 k2 p1 p2 k3
+#camera matrix
+#1365.056805 0.000000 894.734799
+#0.000000 1363.698338 541.885620
+#0.000000 0.000000 1.000000
+#
+#distortion
+#-0.047632 0.055181 -0.000632 -0.006943 0.000000
+
+# Camera frames per second 
+Camera.fps: 30.0
+
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+Camera.RGB: 1
+
+#--------------------------------------------------------------------------------------------
+# ORB Parameters
+#--------------------------------------------------------------------------------------------
+
+# ORB Extractor: Number of features per image
+ORBextractor.nFeatures: 2000
+
+# ORB Extractor: Scale factor between levels in the scale pyramid 	
+ORBextractor.scaleFactor: 1.2
+
+# ORB Extractor: Number of levels in the scale pyramid	
+ORBextractor.nLevels: 8
+
+# ORB Extractor: Fast threshold
+# Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+# Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+# You can lower these values if your images have low contrast			
+#ORBextractor.iniThFAST: 10
+#ORBextractor.minThFAST: 3
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 7
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#--------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.1
+Viewer.KeyFrameLineWidth: 1
+Viewer.GraphLineWidth: 1
+Viewer.PointSize:2
+Viewer.CameraSize: 0.15
+Viewer.CameraLineWidth: 2
+Viewer.ViewpointX: 0
+Viewer.ViewpointY: -10
+Viewer.ViewpointZ: -0.1
+Viewer.ViewpointF: 2000
+
+# Constant Velocity Motion Model (0 - disabled, 1 - enabled [recommended])
+UseMotionModel: 1
