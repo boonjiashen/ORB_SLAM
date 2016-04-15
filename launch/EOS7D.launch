@@ -10,6 +10,7 @@
 
  	<node pkg="ORB_SLAM" type="ORB_SLAM" name="ORB_SLAM"
         args="$(find ORB_SLAM)/Data/ORBvoc.txt $(arg yaml_file)" cwd="node" output="screen">
+        <remap from="camera/image_raw" to="camera_out/image_raw" />
    </node>
 
 </launch>
