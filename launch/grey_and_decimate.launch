@@ -1,0 +1,41 @@
+<?xml version="1" encoding="utf-8"?>
+<launch>
+
+    <!--Maximum height/width that image_proc/crop_decimate can take-->
+    <arg name="MAX_INT" value="2000" />
+
+    <arg name="step_size" />
+    <!--<arg name="step_size" default="0" />-->
+
+    <node pkg="image_view" type="image_view" name="fancy_jam" >
+        <!--<remap from="image" to="camera/image_rect" />-->
+        <remap from="image" to="camera_out/image_raw" />
+        <param name="autosize" value="true" />
+    </node>
+
+    <!--To convert image from RGB to gray (published in image_mono)-->
+    <node pkg="image_proc" type="image_proc"
+          ns="camera"
+          name="image_proc">
+    </node>
+
+    <!--To decimate image-->
+    <node pkg="nodelet" type="nodelet"
+          args="standalone image_proc/crop_decimate"
+          name="my_decimator">
+      <param name="decimation_x" type="int" value="$(arg step_size)" />
+      <param name="decimation_y" type="int" value="$(arg step_size)" />
+      <!--<param name="offset_x" type="int" value="-1" />-->
+      <!--<param name="offset_y" type="int" value="-1" />-->
+      <param name="height" type="int" value="$(arg MAX_INT)" />
+      <param name="width" type="int" value="$(arg MAX_INT)" />
+
+       <!--remap input topics -->
+       <remap from="camera/image_raw" to="camera/image_mono"/>
+      <!--<remap from="camera/image_info" to="/gscam/camera_info"/>-->
+
+       <!--remap output topics -->
+      <!--<remap from="camera_out/image_raw" to="ORB_SLAM/Frame" />-->
+      <!--<remap from="camera_out/image_info" to="/camera_crop/camera_info"/>-->
+    </node>
+</launch>
