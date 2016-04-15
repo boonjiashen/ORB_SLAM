@@ -1,0 +1,53 @@
+<?xml version="1" encoding="utf-8"?>
+<!--Publish a video `video_filename` to camera_out/image_raw-->
+<launch>
+
+<!--<node pkg="gscam" type="gscam"-->
+      <!--name="gscam"-->
+      <!--cwd="node">-->
+  <!--<env name="GSCAM_CONFIG"-->
+       <!--value="v4l2src device=/dev/video0 ! video/x-raw-rgb,framerate=30/1 ! ffmpegcolorspace"/>-->
+<!--</node>-->
+    <arg name="MAX_INT" value="2000" />
+    <arg name="video_filename" default="/home/jiashen/Downloads/VID_20160405_212505.mp4" />
+    <arg name="step_size" default="2" />
+
+    <node pkg="video_stream_opencv" type="video_stream" ns="camera" name="image_publisher">
+        <param name="video_stream_provider" type="str" value="$(arg video_filename)" />
+        <remap from="camera" to="image_raw" />
+    </node>
+
+    <!--<node pkg="image_view" type="image_view" name="fancy_jam" >-->
+        <!--<remap from="image" to="camera_out/image_raw" />-->
+        <!--[><remap from="image" to="camera/image_mono" /><]-->
+        <!--<param name="autosize" value="true" />-->
+    <!--</node>-->
+
+
+<!--ROS_NAMESPACE=camera rosrun video_stream_opencv video_stream-->
+<!--camera:=image_raw _fps:=30 _video_stream_provider:=/home/jiashen/Downloads/VID_20160405_212505.mp4 -->
+
+    <node pkg="image_proc" type="image_proc"
+          ns="camera"
+          name="image_proc">
+    </node>
+
+    <node pkg="nodelet" type="nodelet"
+          args="standalone image_proc/crop_decimate"
+          name="my_decimator">
+      <param name="decimation_x" type="int" value="$(arg step_size)" />
+      <param name="decimation_y" type="int" value="$(arg step_size)" />
+      <!--<param name="offset_x" type="int" value="-1" />-->
+      <!--<param name="offset_y" type="int" value="-1" />-->
+      <param name="height" type="int" value="$(arg MAX_INT)" />
+      <param name="width" type="int" value="$(arg MAX_INT)" />
+
+       <!--remap input topics -->
+       <remap from="camera/image_raw" to="camera/image_mono"/>
+      <!--<remap from="camera/image_info" to="/gscam/camera_info"/>-->
+
+       <!--remap output topics -->
+      <!--<remap from="camera_out/image_raw" to="ORB_SLAM/Frame" />-->
+      <!--<remap from="camera_out/image_info" to="/camera_crop/camera_info"/>-->
+    </node>
+</launch>
